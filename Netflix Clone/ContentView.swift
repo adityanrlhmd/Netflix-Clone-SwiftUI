@@ -8,19 +8,36 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var appState: AppState
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundColor(.accentColor)
-            Text("Hello, world!")
+        ZStack {
+            if appState.isSplashScreen {
+                SplashScreenView()
+                    .transition(.fade)
+            } else {
+                if appState.isOnboarding {
+                    OnBoardingView()
+                        .transition(.move(edge: .bottom))
+                } else {
+                    RootPageView()
+                }
+            }
         }
-        .padding()
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                withAnimation(.easeInOut(duration: 0.5)) {
+                    appState.isSplashScreen = false
+                }
+            }
+        }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(AppState())
+            .preferredColorScheme(.dark)
     }
 }
